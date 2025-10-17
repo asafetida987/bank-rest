@@ -1,0 +1,65 @@
+databaseChangeLog:
+  - changeSet:
+      id: 5
+      author: maria
+      changes:
+        - addUniqueConstraint:
+            columnNames: card_number
+            constraintName: uc_cards_cardnumber
+            tableName: cards
+  - changeSet:
+      id: 6
+      author: maria
+      changes:
+        - addUniqueConstraint:
+            columnNames: token
+            constraintName: uc_refresh_tokens_token
+            tableName: refresh_tokens
+  - changeSet:
+      id: 7
+      author: maria
+      changes:
+        - addUniqueConstraint:
+            columnNames: login
+            constraintName: uc_users_login
+            tableName: users
+  - changeSet:
+      id: 8
+      author: maria
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: balance_card_id
+            baseTableName: cards
+            constraintName: FK_CARDS_ON_BALANCE_CARD
+            referencedColumnNames: card_id
+            referencedTableName: card_balances
+  - changeSet:
+      id: 9
+      author: maria
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: owner_id
+            baseTableName: cards
+            constraintName: FK_CARDS_ON_OWNER
+            referencedColumnNames: id
+            referencedTableName: users
+  - changeSet:
+      id: 10
+      author: maria
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: card_id
+            baseTableName: card_balances
+            constraintName: FK_CARD_BALANCES_ON_CARD
+            referencedColumnNames: id
+            referencedTableName: cards
+  - changeSet:
+      id: 11
+      author: maria
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: refresh_tokens
+            constraintName: FK_REFRESH_TOKENS_ON_USER
+            referencedColumnNames: id
+            referencedTableName: users

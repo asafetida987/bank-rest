@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: bank-rest-main
+  datasource:
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none
+server:
+  port: 8080
+jwt:
+  access_secret: ${JWT_ACCESS_SECRET_KEY}
+  refresh_secret: ${JWT_REFRESH_SECRET_KEY}
+  access_expiration: 900000
+  refresh_expiration: 1296000000

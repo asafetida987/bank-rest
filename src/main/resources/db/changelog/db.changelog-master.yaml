@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/1-create-users.yaml
+  - include:
+      file: db/changelog/2-create-cards.yaml
+  - include:
+      file: db/changelog/3-create-card-balances.yaml
+  - include:
+      file: db/changelog/4-create-refresh.yaml
+  - include:
+      file: db/changelog/5-constraints.yaml
