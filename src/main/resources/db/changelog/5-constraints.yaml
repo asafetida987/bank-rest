@@ -33,6 +33,8 @@ databaseChangeLog:
             constraintName: FK_CARDS_ON_BALANCE_CARD
             referencedColumnNames: card_id
             referencedTableName: card_balances
+            onDelete: CASCADE
+            onUpdate: CASCADE
   - changeSet:
       id: 9
       author: maria
@@ -43,6 +45,8 @@ databaseChangeLog:
             constraintName: FK_CARDS_ON_OWNER
             referencedColumnNames: id
             referencedTableName: users
+            onDelete: CASCADE
+            onUpdate: CASCADE
   - changeSet:
       id: 10
       author: maria
@@ -63,3 +67,5 @@ databaseChangeLog:
             constraintName: FK_REFRESH_TOKENS_ON_USER
             referencedColumnNames: id
             referencedTableName: users
+            onDelete: CASCADE
+            onUpdate: CASCADE
