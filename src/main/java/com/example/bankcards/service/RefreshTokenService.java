@@ -17,14 +17,12 @@ import java.util.UUID;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserService userService;
 
     @Value("${jwt.refresh_expiration}")
     private int refreshMaxAge;
 
     @Transactional
-    public RefreshToken create(Long userId){
-        User user = userService.findUserById(userId);
+    public RefreshToken create(User user) {
         RefreshToken refreshToken = buildRefreshToken(user);
 
         return refreshTokenRepository.save(refreshToken);
@@ -62,7 +60,7 @@ public class RefreshTokenService {
         return RefreshToken.builder()
                 .user(user)
                 .token(UUID.randomUUID().toString())
-                .expiryDate(Instant.now().plusSeconds(refreshMaxAge))
+                .expiryDate(Instant.now().plusMillis(refreshMaxAge))
                 .build();
     }
 }

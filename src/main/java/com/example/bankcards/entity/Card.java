@@ -1,6 +1,7 @@
 package com.example.bankcards.entity;
 
 import com.example.bankcards.entity.enums.CardStatus;
+import com.example.bankcards.util.EncryptionConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false, unique = true)
+    @Convert(converter = EncryptionConverter.class)
     private String cardNumber;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)

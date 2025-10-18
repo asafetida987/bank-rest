@@ -15,3 +15,8 @@ jwt:
   refresh_secret: ${JWT_REFRESH_SECRET_KEY}
   access_expiration: 900000
   refresh_expiration: 1296000000
+jasypt:
+  encryptor:
+    password: ${ENCRYPTION_SECRET}
+    algorithm: PBEWITHHMACSHA512ANDAES_256
+    iv-generator-classname: org.jasypt.iv.RandomIvGenerator

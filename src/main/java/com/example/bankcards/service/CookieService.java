@@ -35,7 +35,7 @@ public class CookieService {
         String accessToken = jwtTokenProvider.createAccessToken(user);
         addAccessTokenCookie(response, accessToken, accessMaxAge);
         if (rememberMe){
-            RefreshToken refreshToken = refreshTokenService.create(userId);
+            RefreshToken refreshToken = refreshTokenService.create(user);
             String refresh = jwtTokenProvider.createRefreshToken(refreshToken);
             addRefreshTokenCookie(response, refresh, refreshMaxAge);
         }
@@ -54,10 +54,14 @@ public class CookieService {
     @Transactional
     public void refreshAuthCookies(HttpServletRequest request, HttpServletResponse response){
         String refreshToken = extractRefreshToken(request);
+        if (refreshToken == null) {
+            throw new UserNotAuthenticatedException("Пользователь не аутентифицирован");
+        }
         String refreshUUID = jwtTokenProvider.extractUUIDRefreshToken(refreshToken);
         User user = refreshTokenService.getUserByToken(refreshUUID);
         String accessToken = jwtTokenProvider.createAccessToken(user);
         addAccessTokenCookie(response, accessToken, accessMaxAge);
+        addRefreshTokenCookie(response, refreshToken, refreshMaxAge);
     }
 
     private void addAccessTokenCookie(HttpServletResponse response, String token, int maxAge) {
@@ -89,7 +93,7 @@ public class CookieService {
                 .filter(cookie -> cookie.getName().equals("refresh_token"))
                 .map(Cookie::getValue)
                 .findFirst()
-                .orElseThrow(() -> new UserNotAuthenticatedException("Refresh токен отсутствует"));
+                .orElse(null);
 
     }
 }
