@@ -33,10 +33,6 @@ public class RefreshTokenServiceTest {
                 .login("test")
                 .build();
 
-        RefreshToken refreshToken = RefreshToken.builder()
-                .user(user)
-                .build();
-
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(i -> i.getArguments()[0]);
 
         RefreshToken result = refreshTokenService.create(user);

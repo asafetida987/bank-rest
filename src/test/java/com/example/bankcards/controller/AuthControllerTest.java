@@ -2,7 +2,6 @@ package com.example.bankcards.controller;
 
 import com.example.bankcards.dto.request.auth.LoginRequestDTO;
 import com.example.bankcards.dto.request.auth.RegisterRequestDTO;
-import com.example.bankcards.dto.response.MessageResponseDTO;
 import com.example.bankcards.dto.response.user.UserResponseDTO;
 import com.example.bankcards.entity.enums.UserRole;
 import com.example.bankcards.security.JwtAuthenticationFilter;
