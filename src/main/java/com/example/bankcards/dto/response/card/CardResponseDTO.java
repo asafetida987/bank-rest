@@ -1,5 +1,7 @@
 package com.example.bankcards.dto.response.card;
 
+import com.example.bankcards.entity.enums.CardStatus;
+
 import java.time.LocalDate;
 
 public record CardResponseDTO(
@@ -7,6 +9,6 @@ public record CardResponseDTO(
         String number,
         String ownerLogin,
         LocalDate expiryDate,
-        String cardStatus
+        CardStatus cardStatus
 ) {
 }

@@ -92,7 +92,7 @@ public class UserApiServiceTest {
         when(userRepository.findAll(ArgumentMatchers.<Specification<User>>any(), eq(defaultPageable)))
                 .thenReturn(new PageImpl<>(List.of(), defaultPageable, 0));
 
-        userApiService.findAllUsers(null, null, null, null, null);
+        userApiService.findAllUsers(0, 100, null, null, null);
 
         verify(userRepository).findAll(ArgumentMatchers.<Specification<User>>any(), eq(defaultPageable));
     }

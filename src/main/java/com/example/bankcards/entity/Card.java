@@ -32,7 +32,6 @@ public class Card {
     @Column(nullable = false)
     private CardStatus cardStatus;
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(nullable = false)
     private CardBalance balance;
     @Column(nullable = false)
     private boolean isRequestBlock = false;

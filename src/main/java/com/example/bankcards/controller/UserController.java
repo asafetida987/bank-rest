@@ -23,7 +23,7 @@ import java.time.LocalDate;
 @RestController
 @Validated
 @RequestMapping("/api/v1/users")
-@Tag(name = "User", description = "API для операциями с пользователями")
+@Tag(name = "User", description = "API для операций с пользователями")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
 public class UserController {
@@ -85,8 +85,8 @@ public class UserController {
                             content = @Content(mediaType = "application/json"))
             })
     public ResponseEntity<PagedResponseDTO<UserResponseDTO>> getAllUsers(
-            @RequestParam(required = false) @Min(0) Integer page,
-            @RequestParam(required = false) @Min(1) Integer size,
+            @RequestParam(required = false, defaultValue = "0") @Min(0) Integer page,
+            @RequestParam(required = false, defaultValue = "100") @Min(1) Integer size,
             @RequestParam(required = false) String login,
             @RequestParam(required = false) LocalDate createdAtFrom,
             @RequestParam(required = false) LocalDate createdAtTo

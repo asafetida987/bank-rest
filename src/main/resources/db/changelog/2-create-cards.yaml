@@ -35,8 +35,6 @@ databaseChangeLog:
               - column:
                   name: balance_card_id
                   type: BIGINT
-                  constraints:
-                    nullable: false
               - column:
                   name: is_request_block
                   type: BOOLEAN

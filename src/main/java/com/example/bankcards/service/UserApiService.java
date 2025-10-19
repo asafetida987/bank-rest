@@ -41,10 +41,7 @@ public class UserApiService {
                 UserSpecification.createdAtBefore(createdAtTo)
         );
 
-        Pageable pageable = PageRequest.of(
-                page == null ? 0 : page,
-                size == null? 100 : size
-        );
+        Pageable pageable = PageRequest.of(page, size);
 
         Page<User> users = userRepository.findAll(specification, pageable);
 
