@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +25,7 @@ public class UserApiService {
 
     private final UserRepository userRepository;
 
+    @Transactional(readOnly = true)
     public UserResponseDTO getUserById(Long userId) {
         log.info("Получение пользователя по id={}", userId);
         User user = userRepository.findById(userId)
@@ -42,6 +44,7 @@ public class UserApiService {
         log.info("Пользователь id={} успешно удален", userId);
     }
 
+    @Transactional(readOnly = true)
     public PagedResponseDTO<UserResponseDTO> findAllUsers(Integer page, Integer size, String login, LocalDate createdAtFrom, LocalDate createdAtTo) {
         log.info("Получение списка пользователей");
         Specification<User> specification = Specification.allOf(

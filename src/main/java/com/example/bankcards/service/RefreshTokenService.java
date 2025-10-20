@@ -62,7 +62,7 @@ public class RefreshTokenService {
 
     private void validate(RefreshToken refreshToken){
         if (refreshToken.getExpiryDate().isBefore(Instant.now())) {
-            log.warn("Refresh токен {} для пользователя id={} истек", refreshToken.getToken(), refreshToken.getUser().getId());
+            log.warn("Refresh токен {} истек", refreshToken.getToken());
             refreshTokenRepository.deleteRefreshTokenByToken(refreshToken.getToken());
             throw new UserNotAuthenticatedException("Refresh токен истек");
         }

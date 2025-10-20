@@ -1,5 +1,7 @@
 package com.example.bankcards.controller;
 
+import com.example.bankcards.dto.request.card.CardRequestDTO;
+import com.example.bankcards.dto.request.card.NewCardRequestDTO;
 import com.example.bankcards.dto.request.card.TransferRequestDTO;
 import com.example.bankcards.dto.response.MessageResponseDTO;
 import com.example.bankcards.dto.response.PagedResponseDTO;
@@ -29,8 +31,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -157,5 +158,196 @@ public class CardControllerTest {
                         .content(objectMapper.writeValueAsString(requestDTO)))
                 .andExpect(status().isInternalServerError());
     }
+
+    @Test
+    void requestBlock_shouldReturn200() throws Exception {
+        CardRequestDTO cardRequestDTO = new CardRequestDTO(11L);
+        MessageResponseDTO responseDTO = new MessageResponseDTO("test");
+
+        when(cardApiService.requestBlock(any(User.class), any(CardRequestDTO.class))).thenReturn(responseDTO);
+
+        mockMvc.perform(post("/api/v1/cards/request-block")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(cardRequestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("test"));
+    }
+
+    @Test
+    void requestBlock_shouldReturn400_whenWrongRequest() throws Exception {
+        CardRequestDTO cardRequestDTO = new CardRequestDTO(-11L);
+
+        mockMvc.perform(post("/api/v1/cards/request-block")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(cardRequestDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void requestBlock_shouldReturn500_whenException() throws Exception {
+        when(cardApiService.requestBlock(any(User.class), any(CardRequestDTO.class))).thenThrow(new RuntimeException());
+
+        mockMvc.perform(post("/api/v1/cards/request-block"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void getAllCards_shouldReturn200() throws Exception {
+        CardResponseDTO responseDTO = new CardResponseDTO(1L, "number", "owner", LocalDate.now(), CardStatus.ACTIVE);
+        PagedResponseDTO<CardResponseDTO> cards = new PagedResponseDTO<>(List.of(responseDTO), 0, 10, 1L);
+
+        when(cardApiService.getAllCards(anyInt(), anyInt(), nullable(String.class), nullable(LocalDate.class), nullable(LocalDate.class), nullable(CardStatus.class), nullable(BigDecimal.class), nullable(BigDecimal.class), nullable(Boolean.class)))
+                .thenReturn(cards);
+
+        mockMvc.perform(get("/api/v1/cards/all")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(10));
+    }
+
+    @Test
+    void getAllCards_shouldReturn400_whenWrongRequest() throws Exception {
+
+        mockMvc.perform(get("/api/v1/cards/all")
+                        .param("page", "0")
+                        .param("size", "0"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getAllCards_shouldReturn500_whenException() throws Exception {
+        when(cardApiService.getAllCards(anyInt(), anyInt(), nullable(String.class), nullable(LocalDate.class), nullable(LocalDate.class), nullable(CardStatus.class), nullable(BigDecimal.class), nullable(BigDecimal.class), nullable(Boolean.class)))
+                .thenThrow(new RuntimeException());
+
+        mockMvc.perform(get("/api/v1/cards/all")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void createNewCard_shouldReturn200() throws Exception {
+        NewCardRequestDTO requestDTO = new NewCardRequestDTO(1L);
+        CardResponseDTO responseDTO = new CardResponseDTO(1L, "number", "owner", LocalDate.now(), CardStatus.ACTIVE);
+
+        when(cardApiService.createNewCard(any(NewCardRequestDTO.class))).thenReturn(responseDTO);
+
+        mockMvc.perform(post("/api/v1/cards/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.number").value("number"));
+    }
+
+    @Test
+    void createNewCard_shouldReturn400_whenWrongRequest() throws Exception {
+        CardRequestDTO cardRequestDTO = new CardRequestDTO(-11L);
+
+        mockMvc.perform(post("/api/v1/cards/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(cardRequestDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createNewCard_shouldReturn500_whenException() throws Exception {
+        when(cardApiService.createNewCard(any(NewCardRequestDTO.class))).thenThrow(new RuntimeException());
+
+        mockMvc.perform(get("/api/v1/cards/create"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void blockCard_shouldReturn200() throws Exception {
+        CardRequestDTO cardRequestDTO = new CardRequestDTO(11L);
+        MessageResponseDTO responseDTO = new MessageResponseDTO("test");
+
+        when(cardApiService.blockCard(any(CardRequestDTO.class))).thenReturn(responseDTO);
+
+        mockMvc.perform(patch("/api/v1/cards/block")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(cardRequestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("test"));
+    }
+
+    @Test
+    void blockCard_shouldReturn400_whenWrongRequest() throws Exception {
+        CardRequestDTO cardRequestDTO = new CardRequestDTO(-11L);
+
+        mockMvc.perform(patch("/api/v1/cards/block")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(cardRequestDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void blockCard_shouldReturn500_whenException() throws Exception {
+        when(cardApiService.blockCard(any(CardRequestDTO.class))).thenThrow(new RuntimeException());
+
+        mockMvc.perform(patch("/api/v1/cards/block"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void activateCard_shouldReturn200() throws Exception {
+        CardRequestDTO cardRequestDTO = new CardRequestDTO(11L);
+        MessageResponseDTO responseDTO = new MessageResponseDTO("test");
+
+        when(cardApiService.activateCard(any(CardRequestDTO.class))).thenReturn(responseDTO);
+
+        mockMvc.perform(patch("/api/v1/cards/activate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(cardRequestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("test"));
+    }
+
+    @Test
+    void activateCard_shouldReturn400_whenWrongRequest() throws Exception {
+        CardRequestDTO cardRequestDTO = new CardRequestDTO(-11L);
+
+        mockMvc.perform(patch("/api/v1/cards/activate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(cardRequestDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void activateCard_shouldReturn500_whenException() throws Exception {
+        when(cardApiService.activateCard(any(CardRequestDTO.class))).thenThrow(new RuntimeException());
+
+        mockMvc.perform(patch("/api/v1/cards/activate"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void deleteCard_shouldReturn200() throws Exception {
+        MessageResponseDTO responseDTO = new MessageResponseDTO("test");
+
+        when(cardApiService.deleteCard(anyLong())).thenReturn(responseDTO);
+
+        mockMvc.perform(delete("/api/v1/cards/{cardId}", 11L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("test"));
+    }
+
+    @Test
+    void deleteCard_shouldReturn400_whenWrongRequest() throws Exception {
+        mockMvc.perform(delete("/api/v1/cards/{cardId}", -11L))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deleteCard_shouldReturn500_whenException() throws Exception {
+        when(cardApiService.deleteCard(anyLong())).thenThrow(new RuntimeException());
+
+        mockMvc.perform(delete("/api/v1/cards/{cardId}", 11L))
+                .andExpect(status().isInternalServerError());
+    }
+
+
 
 }

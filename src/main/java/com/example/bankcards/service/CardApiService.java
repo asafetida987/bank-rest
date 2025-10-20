@@ -34,6 +34,7 @@ public class CardApiService {
     private final CardUserService cardUserService;
     private final CardAdminService cardAdminService;
 
+    @Transactional(readOnly = true)
     public PagedResponseDTO<CardResponseDTO> getMyCards(User currentUser, Integer page, Integer size,
                                                         LocalDate expiryDateFrom, LocalDate expiryDateTo,
                                                         CardStatus status, BigDecimal balanceFrom,
@@ -50,7 +51,7 @@ public class CardApiService {
         return mapToPagedDTO(cards);
     }
 
-
+    @Transactional(readOnly = true)
     public BalanceResponseDTO getBalanceByCard(User currentUser, Long cardId) {
         log.info("Пользователь id={} запрашивает баланс карты id={}", currentUser.getId(), cardId);
         CardBalance cardBalance = cardUserService.getCardBalance(currentUser, cardId);
@@ -77,6 +78,7 @@ public class CardApiService {
         return new MessageResponseDTO("Запрос блокировки успешно отправлен");
     }
 
+    @Transactional(readOnly = true)
     public PagedResponseDTO<CardResponseDTO> getAllCards(Integer page, Integer size, String userLogin,
                                                          LocalDate expiryDateFrom, LocalDate expiryDateTo,
                                                          CardStatus status, BigDecimal balanceFrom,

@@ -26,7 +26,7 @@ public class CardUserService {
     private final CardBalanceRepository cardBalanceRepository;
 
     public Page<Card> getMyCards(Specification<Card> specification, Pageable pageable) {
-        log.info("Запрос карт пользователя (фильтр, пагинация: page={}, size={})", pageable.getPageNumber(), pageable.getPageSize());
+        log.info("Запрос карт пользователя");
         Page<Card> cards = cardRepository.findAll(specification, pageable);
         log.info("Найдено {} карт", cards.getTotalElements());
 
