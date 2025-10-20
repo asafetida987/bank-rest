@@ -8,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -18,6 +19,7 @@ import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CookieService {
 
     @Value("${jwt.access_expiration}")
@@ -31,30 +33,39 @@ public class CookieService {
 
     @Transactional
     public void addAuthCookies(HttpServletResponse response, Long userId, boolean rememberMe){
+        log.info("Добавление cookies для пользователя id={}, rememberMe={}", userId, rememberMe);
         User user = userService.findUserById(userId);
         String accessToken = jwtTokenProvider.createAccessToken(user);
         addAccessTokenCookie(response, accessToken, accessMaxAge);
+        log.info("Access cookie добавлена для пользователя id={}", userId);
         if (rememberMe){
             RefreshToken refreshToken = refreshTokenService.create(user);
             String refresh = jwtTokenProvider.createRefreshToken(refreshToken);
             addRefreshTokenCookie(response, refresh, refreshMaxAge);
+            log.info("Refresh cookie добавлена для пользователя id={}", userId);
         }
+
     }
 
     public void deleteAuthCookies(HttpServletRequest request, HttpServletResponse response){
         String refreshToken = extractRefreshToken(request);
+        log.info("Удаление cookies");
         if (refreshToken != null) {
             String refreshUUID = jwtTokenProvider.extractUUIDRefreshToken(refreshToken);
             refreshTokenService.delete(refreshUUID);
+            log.info("Refresh токен с UUID={} удален", refreshUUID);
         }
         addAccessTokenCookie(response, "", 0);
         addRefreshTokenCookie(response, "", 0);
+        log.info("Cookies успешно удалены");
     }
 
     @Transactional
     public void refreshAuthCookies(HttpServletRequest request, HttpServletResponse response){
+        log.info("Обновление cookies пользователя");
         String refreshToken = extractRefreshToken(request);
         if (refreshToken == null) {
+            log.warn("Попытка обновления cookies без refresh токена");
             throw new UserNotAuthenticatedException("Пользователь не аутентифицирован");
         }
         String refreshUUID = jwtTokenProvider.extractUUIDRefreshToken(refreshToken);
@@ -62,6 +73,8 @@ public class CookieService {
         String accessToken = jwtTokenProvider.createAccessToken(user);
         addAccessTokenCookie(response, accessToken, accessMaxAge);
         addRefreshTokenCookie(response, refreshToken, refreshMaxAge);
+        log.info("Cookies успешно обновлены для пользователя id={}", user.getId());
+
     }
 
     private void addAccessTokenCookie(HttpServletResponse response, String token, int maxAge) {
@@ -86,6 +99,7 @@ public class CookieService {
     private String extractRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
+            log.warn("Нет cookies в запросе");
             throw new UserNotAuthenticatedException("Пользователь не аутентифицирован");
         }
 

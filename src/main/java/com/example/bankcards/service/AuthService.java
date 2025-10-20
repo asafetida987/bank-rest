@@ -7,22 +7,27 @@ import com.example.bankcards.entity.User;
 import com.example.bankcards.entity.enums.UserRole;
 import com.example.bankcards.exception.WrongParameterException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
     public UserResponseDTO login(LoginRequestDTO dto) {
+        log.info("Попытка входа пользователя login={}", dto.login());
         User user = userService.findUserByLogin(dto.login());
         if (!checkPassword(dto.password(), user.getPasswordHash())) {
+            log.warn("Неудачная попытка входа: неверный пароль для login={}", dto.login());
             throw new WrongParameterException("Неверный логин или пароль");
         }
+        log.info("Пользователь login={} успешно вошел в систему", dto.login());
 
         return mapToDTO(user);
 
@@ -30,12 +35,14 @@ public class AuthService {
 
     @Transactional
     public UserResponseDTO register(RegisterRequestDTO dto) {
+        log.info("Регистрация нового пользователя login={}", dto.login());
         User user = User.builder()
                 .login(dto.login())
                 .passwordHash(passwordEncoder.encode(dto.password()))
                 .role(UserRole.ROLE_USER)
                 .build();
         User saveUser = userService.saveUser(user);
+        log.info("Пользователь login={} успешно зарегистрирован с id={}", dto.login(), saveUser.getId());
 
         return mapToDTO(saveUser);
     }

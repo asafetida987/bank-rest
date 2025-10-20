@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +27,7 @@ import java.time.LocalDate;
 @Tag(name = "User", description = "API для операций с пользователями")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
+@Slf4j
 public class UserController {
 
     private final UserApiService userApiService;
@@ -47,7 +49,9 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> getUser(
             @PathVariable @NotNull @Positive Long userId
     ) {
+        log.info("Получение информации о пользователе id={}", userId);
         UserResponseDTO responseDTO = userApiService.getUserById(userId);
+        log.info("Информация о пользователе id={} успешно получена", userId);
 
         return ResponseEntity.ok(responseDTO);
     }
@@ -67,7 +71,9 @@ public class UserController {
     public ResponseEntity<MessageResponseDTO> deleteUser(
             @PathVariable @NotNull @Positive Long userId
     ) {
+        log.info("Удаление пользователя id={}", userId);
         userApiService.deleteUser(userId);
+        log.info("Пользователь id={} успешно удален", userId);
 
         return ResponseEntity.ok(new MessageResponseDTO("Пользователь удален успешно"));
     }
@@ -91,7 +97,9 @@ public class UserController {
             @RequestParam(required = false) LocalDate createdAtFrom,
             @RequestParam(required = false) LocalDate createdAtTo
             ) {
+        log.info("Получение списка пользователей");
         PagedResponseDTO<UserResponseDTO> responseDTO = userApiService.findAllUsers(page, size, login, createdAtFrom, createdAtTo);
+        log.info("Найдено {} пользователей", responseDTO.content().size());
 
         return ResponseEntity.ok(responseDTO);
     }

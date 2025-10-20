@@ -1,8 +1,11 @@
 package com.example.bankcards.dto.request.card;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 public record NewCardRequestDTO(
-        @NotBlank(message = "Логин владельца карты не может быть пустым") String ownerLogin
+        @NotNull(message = "id пользователя не может быть пустым")
+        @Positive(message = "id пользователя должен быть положительным")
+        Long ownerId
 ) {
 }

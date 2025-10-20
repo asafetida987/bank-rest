@@ -22,6 +22,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -35,6 +36,7 @@ import java.time.LocalDate;
 @RequestMapping("/api/v1/cards")
 @Tag(name = "Card", description = "API для операций с картами")
 @RequiredArgsConstructor
+@Slf4j
 public class CardController {
 
     private final CardApiService cardApiService;
@@ -66,8 +68,10 @@ public class CardController {
             @RequestParam(required = false) Boolean isRequestBlock
     ) {
         User currentUser = currentUserProvider.get();
+        log.info("Получение карт пользователя id={}", currentUser.getId());
         PagedResponseDTO<CardResponseDTO> responseDTO =
                 cardApiService.getMyCards(currentUser, page, size, expiryDateFrom, expiryDateTo, status, balanceFrom, balanceTo, isRequestBlock);
+        log.info("Найдено {} карт для пользователя id={}", responseDTO.content().size(), currentUser.getId());
 
         return ResponseEntity.ok(responseDTO);
     }
@@ -89,7 +93,9 @@ public class CardController {
             @PathVariable @NotNull @Positive Long cardId
     ) {
         User currentUser = currentUserProvider.get();
+        log.info("Получение баланса карты id={} пользователя id={}", cardId, currentUser.getId());
         BalanceResponseDTO responseDTO = cardApiService.getBalanceByCard(currentUser, cardId);
+        log.info("Баланс карты id={} пользователя id={} успешно получен", cardId, currentUser.getId());
 
         return ResponseEntity.ok(responseDTO);
     }
@@ -111,7 +117,9 @@ public class CardController {
             @RequestBody @Valid TransferRequestDTO transferRequestDTO
     ) {
         User currentUser = currentUserProvider.get();
+        log.info("Перевод средств пользователем id={} с карты {} на карту {}", currentUser.getId(), transferRequestDTO.cardIdFrom(), transferRequestDTO.cardIdTo());
         MessageResponseDTO messageResponseDTO = cardApiService.transfer(currentUser, transferRequestDTO);
+        log.info("Перевод средств пользователем id={} выполнен успешно", currentUser.getId());
 
         return ResponseEntity.ok(messageResponseDTO);
     }
@@ -133,7 +141,9 @@ public class CardController {
             @RequestBody @Valid CardRequestDTO cardRequestDTO
     ) {
         User currentUser = currentUserProvider.get();
+        log.info("Запрос на блокировку карты id={} пользователем id={}", cardRequestDTO.cardId(), currentUser.getId());
         MessageResponseDTO messageResponseDTO = cardApiService.requestBlock(currentUser, cardRequestDTO);
+        log.info("Запрос на блокировку карты id={} выполнен успешно", cardRequestDTO.cardId());
 
         return ResponseEntity.ok(messageResponseDTO);
     }
@@ -164,8 +174,10 @@ public class CardController {
             @RequestParam(required = false) @DecimalMin("0.0") BigDecimal balanceTo,
             @RequestParam(required = false) Boolean isRequestBlock
     ) {
+        log.info("Админ запрашивает список всех карт");
         PagedResponseDTO<CardResponseDTO> responseDTO =
                 cardApiService.getAllCards(page, size, userLogin, expiryDateFrom, expiryDateTo, status, balanceFrom, balanceTo, isRequestBlock);
+        log.info("Админ получил {} карт", responseDTO.content().size());
 
         return ResponseEntity.ok(responseDTO);
     }
@@ -186,7 +198,9 @@ public class CardController {
     public ResponseEntity<CardResponseDTO> createNewCard(
             @RequestBody @Valid NewCardRequestDTO newCardRequestDTO
     ) {
+        log.info("Админ создает новую карту для пользователя {}", newCardRequestDTO.ownerId());
         CardResponseDTO cardResponseDTO = cardApiService.createNewCard(newCardRequestDTO);
+        log.info("Карта id={} успешно создана", cardResponseDTO.id());
 
         return ResponseEntity.ok(cardResponseDTO);
     }
@@ -207,7 +221,9 @@ public class CardController {
     public ResponseEntity<MessageResponseDTO> blockCard(
             @RequestBody @Valid CardRequestDTO cardRequestDTO
     ) {
+        log.info("Админ блокирует карту id={}", cardRequestDTO.cardId());
         MessageResponseDTO messageResponseDTO = cardApiService.blockCard(cardRequestDTO);
+        log.info("Карта id={} успешно заблокирована", cardRequestDTO.cardId());
 
         return ResponseEntity.ok(messageResponseDTO);
     }
@@ -228,7 +244,9 @@ public class CardController {
     public ResponseEntity<MessageResponseDTO> activateCard(
             @RequestBody @Valid CardRequestDTO cardRequestDTO
     ) {
+        log.info("Админ активирует карту id={}", cardRequestDTO.cardId());
         MessageResponseDTO messageResponseDTO = cardApiService.activateCard(cardRequestDTO);
+        log.info("Карта id={} успешно активирована", cardRequestDTO.cardId());
 
         return ResponseEntity.ok(messageResponseDTO);
     }
@@ -249,7 +267,9 @@ public class CardController {
     public ResponseEntity<MessageResponseDTO> deleteCard(
             @PathVariable @NotNull @Positive Long cardId
     ) {
+        log.info("Админ удаляет карту id={}", cardId);
         MessageResponseDTO messageResponseDTO = cardApiService.deleteCard(cardId);
+        log.info("Карта id={} успешно удалена", cardId);
 
         return ResponseEntity.ok(messageResponseDTO);
     }

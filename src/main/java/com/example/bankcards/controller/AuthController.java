@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Authorization", description = "API для регистрации и входа")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
@@ -46,8 +48,10 @@ public class AuthController {
             @RequestBody @Valid LoginRequestDTO requestDTO,
             HttpServletResponse response
     ) {
+        log.info("Попытка входа пользователя с login={}", requestDTO.login());
         UserResponseDTO responseDTO = authService.login(requestDTO);
         cookieService.addAuthCookies(response, responseDTO.id(), requestDTO.rememberMe());
+        log.info("Пользователь с id={} успешно вошел", responseDTO.id());
 
         return ResponseEntity.ok(responseDTO);
     }
@@ -68,8 +72,10 @@ public class AuthController {
             @RequestBody @Valid RegisterRequestDTO requestDTO,
             HttpServletResponse response
     ) {
+        log.info("Регистрация нового пользователя с login={}", requestDTO.login());
         UserResponseDTO responseDTO = authService.register(requestDTO);
         cookieService.addAuthCookies(response, responseDTO.id(), requestDTO.rememberMe());
+        log.info("Пользователь с id={} успешно зарегистрирован", responseDTO.id());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
 
@@ -87,7 +93,9 @@ public class AuthController {
             HttpServletRequest request,
             HttpServletResponse response
     ) {
+        log.info("Выход пользователя");
         cookieService.deleteAuthCookies(request, response);
+        log.info("Выход успешно выполнен");
 
         return ResponseEntity.ok(new MessageResponseDTO("Выход осуществлен успешно"));
     }
@@ -104,7 +112,9 @@ public class AuthController {
             HttpServletRequest request,
             HttpServletResponse response
     ) {
+        log.info("Обновление токена пользователя");
         cookieService.refreshAuthCookies(request, response);
+        log.info("Токен успешно обновлен");
 
         return ResponseEntity.ok(new MessageResponseDTO("Токен обновлен успешно"));
     }

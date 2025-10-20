@@ -51,9 +51,9 @@ public class Card {
     public String toString() {
         return "Card{" +
                 "id=" + id +
-                ", cardNumber='" + cardNumber + '\'' +
                 ", expiryDate=" + expiryDate +
                 ", cardStatus=" + cardStatus +
+                ", isRequestBlock=" + isRequestBlock +
                 '}';
     }
 }
