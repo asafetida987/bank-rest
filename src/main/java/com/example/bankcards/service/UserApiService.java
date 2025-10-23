@@ -18,6 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Сервис для работы с пользователями на уровне бизнес-логики.
+ * Предоставляет методы получения информации о пользователях, удаления пользователей
+ * и получения списка пользователей с фильтрацией и пагинацией.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,6 +30,13 @@ public class UserApiService {
 
     private final UserRepository userRepository;
 
+    /**
+     * Получает пользователя по его идентификатору.
+     *
+     * @param userId идентификатор пользователя
+     * @return DTO с информацией о пользователе
+     * @throws UserNotFoundException если пользователь с указанным id не найден
+     */
     @Transactional(readOnly = true)
     public UserResponseDTO getUserById(Long userId) {
         log.info("Получение пользователя по id={}", userId);
@@ -38,12 +50,27 @@ public class UserApiService {
         return mapToDTO(user);
     }
 
+    /**
+     * Удаляет пользователя по его идентификатору.
+     *
+     * @param userId идентификатор пользователя
+     */
     public void deleteUser(Long userId) {
         log.info("Удаление пользователя id={}", userId);
         userRepository.deleteById(userId);
         log.info("Пользователь id={} успешно удален", userId);
     }
 
+    /**
+     * Получает список пользователей с возможностью фильтрации и пагинации.
+     *
+     * @param page          номер страницы (от 0)
+     * @param size          количество элементов на странице
+     * @param login         фильтр по логину пользователя (опционально)
+     * @param createdAtFrom фильтр по дате создания с (опционально)
+     * @param createdAtTo   фильтр по дате создания по (опционально)
+     * @return PagedResponseDTO с DTO пользователей
+     */
     @Transactional(readOnly = true)
     public PagedResponseDTO<UserResponseDTO> findAllUsers(Integer page, Integer size, String login, LocalDate createdAtFrom, LocalDate createdAtTo) {
         log.info("Получение списка пользователей");

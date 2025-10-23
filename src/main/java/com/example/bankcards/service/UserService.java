@@ -8,6 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+/**
+ * Сервис для работы с сущностью User.
+ * Предоставляет методы поиска пользователей по ID или логину и сохранения нового пользователя.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -15,6 +19,13 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    /**
+     * Находит пользователя по идентификатору.
+     *
+     * @param userId идентификатор пользователя
+     * @return найденный пользователь
+     * @throws UserNotFoundException если пользователь с указанным id не найден
+     */
     public User findUserById(Long userId) {
         log.info("Поиск пользователя по id={}", userId);
         User user =  userRepository.findById(userId)
@@ -27,6 +38,13 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Находит пользователя по логину.
+     *
+     * @param login логин пользователя
+     * @return найденный пользователь
+     * @throws WrongParameterException если пользователь с указанным логином не найден
+     */
     public User findUserByLogin(String login) {
         log.info("Поиск пользователя по логину={}", login);
         User user =  userRepository.findByLoginIgnoreCase(login)
@@ -39,6 +57,13 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Сохраняет нового пользователя.
+     *
+     * @param user объект пользователя для сохранения
+     * @return сохраненный пользователь с заполненным ID
+     * @throws WrongParameterException если пользователь с таким логином уже существует
+     */
     public User saveUser(User user) {
         log.info("Сохранение пользователя login={}", user.getLogin());
         if (existsUserByLogin(user.getLogin())) {

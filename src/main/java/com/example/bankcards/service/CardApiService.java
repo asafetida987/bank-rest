@@ -26,6 +26,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Сервис для операций с картами, объединяющий функционал пользователя и администратора.
+ * Предоставляет методы для получения карт, баланса, переводов, запросов на блокировку,
+ * а также административные операции: просмотр всех карт, создание, блокировка, активация и удаление карт.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -34,6 +39,20 @@ public class CardApiService {
     private final CardUserService cardUserService;
     private final CardAdminService cardAdminService;
 
+    /**
+     * Возвращает список карт текущего пользователя с фильтрацией и пагинацией.
+     *
+     * @param currentUser    текущий пользователь
+     * @param page           номер страницы (начиная с 0)
+     * @param size           размер страницы
+     * @param expiryDateFrom фильтр по дате окончания от
+     * @param expiryDateTo   фильтр по дате окончания до
+     * @param status         фильтр по статусу карты
+     * @param balanceFrom    фильтр по минимальному балансу
+     * @param balanceTo      фильтр по максимальному балансу
+     * @param isRequestBlock фильтр по запросам на блокировку
+     * @return страничный список DTO карт
+     */
     @Transactional(readOnly = true)
     public PagedResponseDTO<CardResponseDTO> getMyCards(User currentUser, Integer page, Integer size,
                                                         LocalDate expiryDateFrom, LocalDate expiryDateTo,
@@ -51,6 +70,13 @@ public class CardApiService {
         return mapToPagedDTO(cards);
     }
 
+    /**
+     * Возвращает баланс карты пользователя.
+     *
+     * @param currentUser текущий пользователь
+     * @param cardId      ID карты
+     * @return DTO с информацией о балансе карты
+     */
     @Transactional(readOnly = true)
     public BalanceResponseDTO getBalanceByCard(User currentUser, Long cardId) {
         log.info("Пользователь id={} запрашивает баланс карты id={}", currentUser.getId(), cardId);
@@ -60,6 +86,13 @@ public class CardApiService {
         return mapToBalanceDTO(cardBalance);
     }
 
+    /**
+     * Выполняет перевод средств между картами пользователя.
+     *
+     * @param currentUser        текущий пользователь
+     * @param transferRequestDTO DTO с данными перевода
+     * @return сообщение об успешном переводе
+     */
     @Transactional
     public MessageResponseDTO transfer(User currentUser, TransferRequestDTO transferRequestDTO) {
         log.info("Пользователь id={} осуществялет перевод средств", currentUser.getId());
@@ -69,6 +102,13 @@ public class CardApiService {
         return new MessageResponseDTO("Перевод осуществлен успешно");
     }
 
+    /**
+     * Создает запрос на блокировку карты пользователя.
+     *
+     * @param currentUser     текущий пользователь
+     * @param cardRequestDTO  DTO с ID карты для блокировки
+     * @return сообщение об успешном запросе блокировки
+     */
     @Transactional
     public MessageResponseDTO requestBlock(User currentUser, CardRequestDTO cardRequestDTO) {
         log.info("Пользователь id={} запрашивает блокировку карты id={}", currentUser.getId(), cardRequestDTO.cardId());
@@ -78,6 +118,20 @@ public class CardApiService {
         return new MessageResponseDTO("Запрос блокировки успешно отправлен");
     }
 
+    /**
+     * Возвращает список всех карт с фильтрацией и пагинацией (для админа).
+     *
+     * @param page           номер страницы
+     * @param size           размер страницы
+     * @param userLogin      фильтр по логину пользователя
+     * @param expiryDateFrom фильтр по дате окончания от
+     * @param expiryDateTo   фильтр по дате окончания до
+     * @param status         фильтр по статусу карты
+     * @param balanceFrom    фильтр по минимальному балансу
+     * @param balanceTo      фильтр по максимальному балансу
+     * @param isRequestBlock фильтр по запросам на блокировку
+     * @return страничный список DTO карт
+     */
     @Transactional(readOnly = true)
     public PagedResponseDTO<CardResponseDTO> getAllCards(Integer page, Integer size, String userLogin,
                                                          LocalDate expiryDateFrom, LocalDate expiryDateTo,
@@ -95,6 +149,12 @@ public class CardApiService {
 
     }
 
+    /**
+     * Создает новую карту для пользователя (для админа).
+     *
+     * @param requestDTO DTO с данными о владельце карты
+     * @return DTO созданной карты
+     */
     @Transactional
     public CardResponseDTO createNewCard(NewCardRequestDTO requestDTO) {
         log.info("Админ создает карту для пользователя id={}", requestDTO.ownerId());
@@ -104,6 +164,12 @@ public class CardApiService {
         return mapToDTO(card);
     }
 
+    /**
+     * Блокирует карту по ID (для админа).
+     *
+     * @param cardRequestDTO DTO с ID карты
+     * @return сообщение об успешной блокировке
+     */
     @Transactional
     public MessageResponseDTO blockCard(CardRequestDTO cardRequestDTO) {
         log.info("Админ блокирует карту id={}", cardRequestDTO.cardId());
@@ -113,6 +179,12 @@ public class CardApiService {
         return new MessageResponseDTO("Карта успешно заблокирована");
     }
 
+    /**
+     * Активирует карту по ID (для админа).
+     *
+     * @param cardRequestDTO DTO с ID карты
+     * @return сообщение об успешной активации
+     */
     @Transactional
     public MessageResponseDTO activateCard(CardRequestDTO cardRequestDTO) {
         log.info("Админ активирует карту id={}", cardRequestDTO.cardId());
@@ -122,6 +194,12 @@ public class CardApiService {
         return new MessageResponseDTO("Карта успешно активирована");
     }
 
+    /**
+     * Удаляет карту по ID (для админа).
+     *
+     * @param cardId ID карты
+     * @return сообщение об успешном удалении
+     */
     @Transactional
     public MessageResponseDTO deleteCard(Long cardId) {
         log.info("Админ удаляет карту id={}", cardId);

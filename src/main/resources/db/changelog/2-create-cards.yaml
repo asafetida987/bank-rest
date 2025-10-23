@@ -2,6 +2,14 @@ databaseChangeLog:
   - changeSet:
       id: 2
       author: maria
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - dbms:
+            type: postgresql
+        - not:
+            tableExists:
+              tableName: cards
       changes:
         - createTable:
             tableName: cards

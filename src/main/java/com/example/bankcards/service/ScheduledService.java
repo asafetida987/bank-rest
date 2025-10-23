@@ -9,6 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 
+/**
+ * Сервис для плановых задач (scheduled tasks).
+ * Обрабатывает автоматические операции, такие как удаление истекших refresh токенов
+ * и обновление статуса просроченных карт.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -18,6 +23,10 @@ public class ScheduledService {
     private final RefreshTokenService refreshTokenService;
     private final CardAdminService cardAdminService;
 
+    /**
+     * Плановая задача для удаления всех истекших refresh токенов.
+     * Запускается ежедневно в полночь.
+     */
     @Scheduled(cron = "0 0 0 * * ?")
     public void deleteExpiredTokens(){
         Instant now = Instant.now();
@@ -26,6 +35,10 @@ public class ScheduledService {
         log.info("Удаление истекших refresh токенов выполнено");
     }
 
+    /**
+     * Плановая задача для обновления статуса всех просроченных карт на EXPIRED.
+     * Запускается ежедневно в полночь.
+     */
     @Scheduled(cron = "0 0 0 * * ?")
     public void updateStatusForExpiredCard(){
         LocalDate now = LocalDate.now();

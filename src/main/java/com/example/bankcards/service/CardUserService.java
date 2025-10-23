@@ -17,6 +17,11 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Сервис для операций с картами со стороны пользователя.
+ * Предоставляет методы для получения карт пользователя, проверки баланса,
+ * перевода средств между картами и запроса на блокировку карты.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,6 +30,13 @@ public class CardUserService {
     private final CardRepository cardRepository;
     private final CardBalanceRepository cardBalanceRepository;
 
+    /**
+     * Возвращает список карт пользователя с фильтрацией и пагинацией.
+     *
+     * @param specification спецификация фильтров
+     * @param pageable      параметры пагинации
+     * @return страница карт пользователя
+     */
     public Page<Card> getMyCards(Specification<Card> specification, Pageable pageable) {
         log.info("Запрос карт пользователя");
         Page<Card> cards = cardRepository.findAll(specification, pageable);
@@ -33,6 +45,13 @@ public class CardUserService {
         return cards;
     }
 
+    /**
+     * Возвращает баланс карты пользователя.
+     *
+     * @param currentUser текущий пользователь
+     * @param cardId      ID карты
+     * @return объект с балансом карты
+     */
     public CardBalance getCardBalance(User currentUser, Long cardId) {
         log.info("Запрос баланса карты id={} для пользователя id={}", cardId, currentUser.getId());
         Card card = getCard(currentUser, cardId);
@@ -45,6 +64,14 @@ public class CardUserService {
         return card.getBalance();
     }
 
+    /**
+     * Выполняет перевод средств между картами пользователя.
+     *
+     * @param currentUser   текущий пользователь
+     * @param cardIdFrom    ID карты списания
+     * @param cardIdTo      ID карты зачисления
+     * @param amount        сумма перевода
+     */
     public void transferMoney(User currentUser, Long cardIdFrom, Long cardIdTo, BigDecimal amount) {
         log.info("Пользователь id={} переводит средства", currentUser.getId());
         CardBalance cardBalanceFrom = getCardBalance(currentUser, cardIdFrom);
@@ -62,6 +89,12 @@ public class CardUserService {
         log.info("Перевод средств с карты id={} на карту id={} выполнен успешно", cardIdFrom, cardIdTo);
     }
 
+    /**
+     * Отправляет запрос на блокировку карты пользователя.
+     *
+     * @param currentUser   текущий пользователь
+     * @param cardId        ID карты
+     */
     public void requestBlock(User currentUser, Long cardId) {
         log.info("Пользователь id={} отправляет запрос на блокировку карты id={}", currentUser.getId(), cardId);
         Card card = getCard(currentUser, cardId);

@@ -13,6 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Сервис для работы с refresh токенами.
+ * Предоставляет методы для создания, валидации и удаления refresh токенов пользователей.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -23,6 +27,12 @@ public class RefreshTokenService {
     @Value("${jwt.refresh_expiration}")
     private int refreshMaxAge;
 
+    /**
+     * Создает новый refresh токен для указанного пользователя.
+     *
+     * @param user пользователь, для которого создается токен
+     * @return созданный {@link RefreshToken}
+     */
     @Transactional
     public RefreshToken create(User user) {
         log.info("Создание refresh токена для пользователя id={}", user.getId());
@@ -32,6 +42,14 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshToken);
     }
 
+    /**
+     * Получает пользователя по refresh токену.
+     * Выполняет валидацию токена и проверяет срок его действия.
+     *
+     * @param token refresh токен
+     * @return пользователь, которому принадлежит токен
+     * @throws UserNotAuthenticatedException если токен не найден или истек
+     */
     @Transactional
     public User getUserByToken(String token){
         log.info("Получение пользователя по refresh токену {}", token);
@@ -47,6 +65,11 @@ public class RefreshTokenService {
 
     }
 
+    /**
+     * Удаляет refresh токен по его значению.
+     *
+     * @param token refresh токен
+     */
     @Transactional
     public void delete(String token){
         log.info("Удаление refresh токена {}", token);
@@ -54,6 +77,11 @@ public class RefreshTokenService {
         log.info("Refresh токен {} удален", token);
     }
 
+    /**
+     * Удаляет все refresh токены, срок действия которых истек до указанного времени.
+     *
+     * @param expiration момент времени, до которого удаляются токены
+     */
     public void deleteByExpiration(Instant expiration){
         log.info("Удаление истекших refresh токенов до {}", expiration);
         refreshTokenRepository.deleteRefreshTokenByExpiryDateBefore(expiration);

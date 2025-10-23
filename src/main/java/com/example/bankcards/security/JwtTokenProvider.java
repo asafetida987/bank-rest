@@ -16,6 +16,11 @@ import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
 
+/**
+ * Провайдер JWT токенов для аутентификации и авторизации пользователей.
+ * Отвечает за создание, проверку и извлечение данных из access и refresh токенов.
+ * Использует {@link CustomUserDetailsService} для получения данных пользователя.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
@@ -31,12 +36,22 @@ public class JwtTokenProvider {
 
     private final CustomUserDetailsService userDetailsService;
 
+    /**
+     * Инициализация секретных ключей после создания бина.
+     * Преобразует их в Base64 для использования при подписи JWT.
+     */
     @PostConstruct
     protected void init() {
         accessSecretKey = Base64.getEncoder().encodeToString(accessSecretKey.getBytes());
         refreshSecretKey = Base64.getEncoder().encodeToString(refreshSecretKey.getBytes());
     }
 
+    /**
+     * Создает access токен для пользователя.
+     *
+     * @param user пользователь
+     * @return JWT access токен
+     */
     public String createAccessToken(User user) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessMaxAge);
@@ -49,6 +64,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * Создает refresh токен для заданного {@link RefreshToken}.
+     *
+     * @param refreshToken refresh токен
+     * @return JWT refresh токен
+     */
     public String createRefreshToken(RefreshToken refreshToken) {
         return Jwts.builder()
                 .claim("uuid", refreshToken.getToken())
@@ -57,6 +78,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * Валидирует access токен.
+     *
+     * @param token access токен
+     * @return true, если токен валиден, иначе false
+     */
     public boolean validateAccessToken(String token) {
         try {
             Jwts.parser()
@@ -70,6 +97,12 @@ public class JwtTokenProvider {
         }
     }
 
+    /**
+     * Извлекает логин пользователя из access токена.
+     *
+     * @param token access токен
+     * @return логин пользователя
+     */
     public String extractLogin(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey(accessSecretKey))
@@ -79,6 +112,12 @@ public class JwtTokenProvider {
                 .get("login", String.class);
     }
 
+    /**
+     * Извлекает UUID refresh токена из JWT.
+     *
+     * @param token refresh токен
+     * @return UUID токена
+     */
     public String extractUUIDRefreshToken(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey(refreshSecretKey))
@@ -88,6 +127,12 @@ public class JwtTokenProvider {
                 .get("uuid", String.class);
     }
 
+    /**
+     * Получает объект аутентификации {@link Authentication} из access токена.
+     *
+     * @param token access токен
+     * @return объект аутентификации Spring Security
+     */
     public Authentication getAuthentication(String token) {
         String email = extractLogin(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);

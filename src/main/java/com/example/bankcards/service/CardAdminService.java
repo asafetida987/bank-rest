@@ -21,6 +21,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Сервис для административных операций с картами.
+ * Предоставляет методы для получения всех карт, создания, блокировки, активации, удаления
+ * и обновления статусов просроченных карт.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,6 +35,13 @@ public class CardAdminService {
     private final CardBalanceRepository cardBalanceRepository;
     private final UserService userService;
 
+    /**
+     * Возвращает страницу всех карт с учетом переданной спецификации и пагинации.
+     *
+     * @param specification спецификация для фильтрации карт
+     * @param pageable      параметры пагинации
+     * @return страница карт
+     */
     public Page<Card> getAll(Specification<Card> specification, Pageable pageable) {
         log.info("Админ запрашивает список карт");
         Page<Card> cards = cardRepository.findAll(specification, pageable);
@@ -38,6 +50,12 @@ public class CardAdminService {
         return cards;
     }
 
+    /**
+     * Создает новую карту для указанного пользователя.
+     *
+     * @param ownerId ID пользователя-владельца
+     * @return созданная карта с инициализированным балансом
+     */
     public Card create(Long ownerId) {
         log.info("Создание новой карты для пользователя id={}", ownerId);
         User user = userService.findUserById(ownerId);
@@ -49,18 +67,33 @@ public class CardAdminService {
         return saveCard;
     }
 
+    /**
+     * Блокирует карту по указанному ID.
+     *
+     * @param cardId ID карты
+     */
     public void blockCard(Long cardId) {
         log.info("Блокировка карты id={}", cardId);
         setStatus(cardId, CardStatus.BLOCKED);
         log.info("Карта id={} успешно заблокирована", cardId);
     }
 
+    /**
+     * Активирует карту по указанному ID.
+     *
+     * @param cardId ID карты
+     */
     public void activateCard(Long cardId) {
         log.info("Активация карты id={}", cardId);
         setStatus(cardId, CardStatus.ACTIVE);
         log.info("Карта id={} успешно активирована", cardId);
     }
 
+    /**
+     * Удаляет карту по указанному ID вместе с балансом.
+     *
+     * @param cardId ID карты
+     */
     public void deleteCard(Long cardId) {
         log.info("Удаление карты id={}", cardId);
         cardBalanceRepository.deleteById(cardId);
@@ -68,6 +101,11 @@ public class CardAdminService {
         log.info("Карта id={} успешно удалена", cardId);
     }
 
+    /**
+     * Обновляет статус всех карт, срок действия которых истек на указанную дату.
+     *
+     * @param now текущая дата для проверки просроченных карт
+     */
     @Transactional
     public void updateForExpiredCard(LocalDate now) {
         log.info("Обновление статуса просроченных карт на дату {}", now);

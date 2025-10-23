@@ -19,6 +19,17 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/**
+ * Конфигурация безопасности Spring Security для приложения.
+ * Настраивает:
+ * <ul>
+ *     <li>JWT аутентификацию через {@link JwtAuthenticationFilter}</li>
+ *     <li>Обработчики отказа в доступе и неаутентифицированного доступа</li>
+ *     <li>Политику CORS и отключение CSRF</li>
+ *     <li>Статeless сессию</li>
+ *     <li>Разрешенные публичные URL и защиту остальных эндпоинтов</li>
+ * </ul>
+ */
 @Configuration
 @EnableMethodSecurity
 @RequiredArgsConstructor
@@ -28,6 +39,13 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
+    /**
+     * Настройка цепочки фильтров безопасности.
+     *
+     * @param http объект конфигурации HttpSecurity
+     * @return настроенная цепочка фильтров {@link SecurityFilterChain}
+     * @throws Exception возможны ошибки конфигурации
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -46,6 +64,11 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Настройка CORS для фронтенда.
+     *
+     * @return источник конфигурации CORS {@link CorsConfigurationSource}
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -59,12 +82,24 @@ public class SecurityConfig {
         return source;
     }
 
+    /**
+     * Создает {@link PasswordEncoder} для хеширования паролей пользователей.
+     *
+     * @return {@link BCryptPasswordEncoder}
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
 
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Получает {@link AuthenticationManager} из конфигурации Spring Security.
+     *
+     * @param authenticationConfiguration объект конфигурации аутентификации
+     * @return менеджер аутентификации {@link AuthenticationManager}
+     * @throws Exception возможны ошибки получения
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 

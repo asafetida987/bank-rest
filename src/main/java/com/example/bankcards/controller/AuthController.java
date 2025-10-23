@@ -21,6 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Контроллер, отвечающий за аутентификацию и авторизацию пользователей.
+ * Содержит эндпоинты для входа, регистрации, выхода и обновления токенов.
+ */
 @RestController
 @Validated
 @RequestMapping("/api/v1/auth")
@@ -32,6 +36,14 @@ public class AuthController {
     private final AuthService authService;
     private final CookieService cookieService;
 
+    /**
+     * Выполняет аутентификацию пользователя по логину и паролю.
+     * В случае успеха устанавливает в ответ cookies с токенами.
+     *
+     * @param requestDTO DTO с данными для входа (логин, пароль, rememberMe)
+     * @param response   HTTP-ответ, в который будут добавлены cookies
+     * @return {@link UserResponseDTO} с данными аутентифицированного пользователя
+     */
     @PostMapping("/login")
     @Operation(
             summary = "Вход пользователя",
@@ -56,6 +68,14 @@ public class AuthController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    /**
+     * Регистрирует нового пользователя и сразу выполняет вход.
+     * В случае успеха устанавливает в ответ cookies с токенами.
+     *
+     * @param requestDTO DTO с данными для создания учетной записи
+     * @param response   HTTP-ответ, в который будут добавлены cookies
+     * @return {@link UserResponseDTO} с данными зарегистрированного пользователя
+     */
     @PostMapping("/register")
     @Operation(
             summary = "Регистрация пользователя",
@@ -81,6 +101,13 @@ public class AuthController {
 
     }
 
+    /**
+     * Выполняет выход пользователя — удаляет cookies с токенами.
+     *
+     * @param request  HTTP-запрос, из которого будут извлечены cookies
+     * @param response HTTP-ответ, в который вернется пустой набор cookies
+     * @return текстовое подтверждение выхода
+     */
     @PostMapping("/logout")
     @Operation(
             summary = "Выход пользователя",
@@ -100,6 +127,13 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponseDTO("Выход осуществлен успешно"));
     }
 
+    /**
+     * Обновляет access-токен по refresh-токену из cookies.
+     *
+     * @param request  HTTP-запрос с refresh-token cookie
+     * @param response HTTP-ответ, в который будет добавлен новый access-token
+     * @return текстовое подтверждение обновления токена
+     */
     @PostMapping("/refresh")
     @Operation(
             summary = "Обновление токена",

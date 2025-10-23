@@ -12,6 +12,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Сервис для аутентификации и регистрации пользователей.
+ * Отвечает за проверку учетных данных, создание новых учетных записей
+ * и возврат DTO, используемых в REST-контроллере.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -20,6 +25,13 @@ public class AuthService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Выполняет аутентификацию пользователя по логину и паролю.
+     *
+     * @param dto DTO с учетными данными пользователя
+     * @return данные пользователя в виде {@link UserResponseDTO}
+     * @throws WrongParameterException если пароль неверный или пользователь не существует
+     */
     public UserResponseDTO login(LoginRequestDTO dto) {
         log.info("Попытка входа пользователя login={}", dto.login());
         User user = userService.findUserByLogin(dto.login());
@@ -33,6 +45,14 @@ public class AuthService {
 
     }
 
+    /**
+     * Регистрирует нового пользователя в системе.
+     * Метод является транзакционным и записывает нового пользователя в базу данных.
+     * Пользователь создается с ролью {@code ROLE_USER}.
+     *
+     * @param dto DTO с регистрационными данными
+     * @return данные созданного пользователя
+     */
     @Transactional
     public UserResponseDTO register(RegisterRequestDTO dto) {
         log.info("Регистрация нового пользователя login={}", dto.login());

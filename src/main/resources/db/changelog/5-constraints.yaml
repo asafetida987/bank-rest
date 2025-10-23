@@ -2,6 +2,13 @@ databaseChangeLog:
   - changeSet:
       id: 5
       author: maria
+      preConditions:
+        - not:
+            uniqueConstraintExists:
+              tableName: cards
+              constraintName: uc_cards_cardnumber
+              onFail: MARK_RAN
+              onError: HALT
       changes:
         - addUniqueConstraint:
             columnNames: card_number
@@ -10,6 +17,13 @@ databaseChangeLog:
   - changeSet:
       id: 6
       author: maria
+      preConditions:
+        - not:
+            uniqueConstraintExists:
+              tableName: refresh_tokens
+              constraintName: uc_refresh_tokens_token
+              onFail: MARK_RAN
+              onError: HALT
       changes:
         - addUniqueConstraint:
             columnNames: token
@@ -18,6 +32,13 @@ databaseChangeLog:
   - changeSet:
       id: 7
       author: maria
+      preConditions:
+        - not:
+            uniqueConstraintExists:
+              tableName: users
+              constraintName: uc_users_login
+              onFail: MARK_RAN
+              onError: HALT
       changes:
         - addUniqueConstraint:
             columnNames: login
@@ -26,6 +47,13 @@ databaseChangeLog:
   - changeSet:
       id: 8
       author: maria
+      preConditions:
+        - not:
+            foreignKeyConstraintExists:
+              tableName: cards
+              constraintName: FK_CARDS_ON_BALANCE_CARD
+              onFail: MARK_RAN
+              onError: HALT
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: balance_card_id
@@ -38,6 +66,13 @@ databaseChangeLog:
   - changeSet:
       id: 9
       author: maria
+      preConditions:
+        - not:
+            foreignKeyConstraintExists:
+              tableName: cards
+              constraintName: FK_CARDS_ON_OWNER
+              onFail: MARK_RAN
+              onError: HALT
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: owner_id
@@ -50,6 +85,13 @@ databaseChangeLog:
   - changeSet:
       id: 10
       author: maria
+      preConditions:
+        - not:
+            foreignKeyConstraintExists:
+              tableName: card_balances
+              constraintName: FK_CARD_BALANCES_ON_CARD
+              onFail: MARK_RAN
+              onError: HALT
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: card_id
@@ -60,6 +102,13 @@ databaseChangeLog:
   - changeSet:
       id: 11
       author: maria
+      preConditions:
+        - not:
+            foreignKeyConstraintExists:
+              tableName: refresh_tokens
+              constraintName: FK_REFRESH_TOKENS_ON_USER
+              onFail: MARK_RAN
+              onError: HALT
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: user_id

@@ -17,6 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 
+/**
+ * Сервис для работы с авторизационными cookie.
+ * Предоставляет методы для добавления, удаления и обновления cookies с access и refresh токенами.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -31,6 +35,13 @@ public class CookieService {
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
 
+    /**
+     * Добавляет cookies с access и (опционально) refresh токенами для пользователя.
+     *
+     * @param response   HttpServletResponse для добавления cookie
+     * @param userId     ID пользователя
+     * @param rememberMe если true — создается и refresh cookie
+     */
     @Transactional
     public void addAuthCookies(HttpServletResponse response, Long userId, boolean rememberMe){
         log.info("Добавление cookies для пользователя id={}, rememberMe={}", userId, rememberMe);
@@ -47,6 +58,13 @@ public class CookieService {
 
     }
 
+    /**
+     * Удаляет cookies пользователя с access и refresh токенами.
+     * Если в запросе есть refresh токен, он удаляется из базы данных.
+     *
+     * @param request  HttpServletRequest с текущими cookies
+     * @param response HttpServletResponse для удаления cookie
+     */
     public void deleteAuthCookies(HttpServletRequest request, HttpServletResponse response){
         String refreshToken = extractRefreshToken(request);
         log.info("Удаление cookies");
@@ -60,6 +78,14 @@ public class CookieService {
         log.info("Cookies успешно удалены");
     }
 
+    /**
+     * Обновляет cookies пользователя.
+     * Access токен обновляется всегда. Refresh токен сохраняется.
+     * Если refresh токен отсутствует, выбрасывается исключение {@link UserNotAuthenticatedException}.
+     *
+     * @param request  HttpServletRequest с текущими cookies
+     * @param response HttpServletResponse для установки новых cookie
+     */
     @Transactional
     public void refreshAuthCookies(HttpServletRequest request, HttpServletResponse response){
         log.info("Обновление cookies пользователя");

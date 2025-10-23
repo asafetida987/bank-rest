@@ -31,6 +31,11 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Контроллер, отвечающий за операции с банковскими картами.
+ * Включает пользовательские и административные эндпоинты для получения информации,
+ * выполнения переводов, блокировки, активации и удаления карт.
+ */
 @RestController
 @Validated
 @RequestMapping("/api/v1/cards")
@@ -44,6 +49,19 @@ public class CardController {
 
     //USER
 
+    /**
+     * Возвращает список карт текущего пользователя с поддержкой фильтрации и пагинации.
+     *
+     * @param page           номер страницы (0 по умолчанию)
+     * @param size           размер страницы (100 по умолчанию)
+     * @param expiryDateFrom фильтр по дате окончания действия (от)
+     * @param expiryDateTo   фильтр по дате окончания действия (до)
+     * @param status         фильтр по статусу карты
+     * @param balanceFrom    фильтр минимальный баланс по карте
+     * @param balanceTo      фильтр максимальный баланс по карте
+     * @param isRequestBlock фильтр по флагу запроса блокировки по карте
+     * @return {@link PagedResponseDTO} страница карт текущего пользователя
+     */
     @GetMapping
     @PreAuthorize("hasRole('USER')")
     @Operation(
@@ -76,6 +94,12 @@ public class CardController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    /**
+     * Возвращает баланс карты текущего пользователя.
+     *
+     * @param cardId идентификатор карты
+     * @return {@link BalanceResponseDTO} баланс карты
+     */
     @GetMapping("/{cardId}/balance")
     @PreAuthorize("hasRole('USER')")
     @Operation(
@@ -100,6 +124,12 @@ public class CardController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    /**
+     * Выполняет перевод средств между картами текущего пользователя.
+     *
+     * @param transferRequestDTO DTO с данными перевода
+     * @return сообщение об успешном выполнении операции
+     */
     @PostMapping("/transfer")
     @PreAuthorize("hasRole('USER')")
     @Operation(
@@ -124,6 +154,12 @@ public class CardController {
         return ResponseEntity.ok(messageResponseDTO);
     }
 
+    /**
+     * Создаёт запрос на блокировку карты пользователя.
+     *
+     * @param cardRequestDTO DTO с идентификатором карты
+     * @return сообщение о создании запроса
+     */
     @PostMapping("/request-block")
     @PreAuthorize("hasRole('USER')")
     @Operation(
@@ -150,6 +186,19 @@ public class CardController {
 
     //ADMIN
 
+    /**
+     * Возвращает список всех карт (только для администратора) с поддержкой фильтрации и пагинации.
+     *
+     * @param page           номер страницы (0 по умолчанию)
+     * @param size           размер страницы (100 по умолчанию)
+     * @param expiryDateFrom фильтр по дате окончания действия (от)
+     * @param expiryDateTo   фильтр по дате окончания действия (до)
+     * @param status         фильтр по статусу карты
+     * @param balanceFrom    фильтр минимальный баланс по карте
+     * @param balanceTo      фильтр максимальный баланс по карте
+     * @param isRequestBlock фильтр по флагу запроса блокировки по карте
+     * @return {@link PagedResponseDTO} страница карт текущего пользователя
+     */
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
@@ -182,6 +231,12 @@ public class CardController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    /**
+     * Создаёт новую карту для пользователя.
+     *
+     * @param newCardRequestDTO DTO с данными для создания карты
+     * @return {@link CardResponseDTO} информация о созданной карте
+     */
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
@@ -205,6 +260,12 @@ public class CardController {
         return ResponseEntity.ok(cardResponseDTO);
     }
 
+    /**
+     * Блокирует карту.
+     *
+     * @param cardRequestDTO DTO с идентификатором карты
+     * @return сообщение об успешной блокировке
+     */
     @PatchMapping("/block")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
@@ -228,6 +289,12 @@ public class CardController {
         return ResponseEntity.ok(messageResponseDTO);
     }
 
+    /**
+     * Активирует карту.
+     *
+     * @param cardRequestDTO DTO с идентификатором карты
+     * @return сообщение об успешной активации
+     */
     @PatchMapping("/activate")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
@@ -251,6 +318,12 @@ public class CardController {
         return ResponseEntity.ok(messageResponseDTO);
     }
 
+    /**
+     * Удаляет карту.
+     *
+     * @param cardId идентификатор карты
+     * @return сообщение об удалении карты
+     */
     @DeleteMapping("/{cardId}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(

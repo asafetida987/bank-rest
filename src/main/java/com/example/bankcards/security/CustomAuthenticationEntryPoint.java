@@ -13,6 +13,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * Обработчик неаутентифицированного доступа для Spring Security.
+ * Реализует {@link AuthenticationEntryPoint} и формирует JSON-ответ с кодом 401 и сообщением о
+ * том, что пользователь не аутентифицирован для доступа к запрашиваемому ресурсу.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -20,6 +25,14 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * Обрабатывает попытку доступа неаутентифицированного пользователя к ресурсу.
+     *
+     * @param request  объект HTTP-запроса
+     * @param response объект HTTP-ответа
+     * @param authException исключение аутентификации
+     * @throws IOException если возникает ошибка при записи JSON-ответа
+     */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.warn("Неаутентифицированный доступ к URL {}: {}", request.getRequestURI(), authException.getMessage());

@@ -21,6 +21,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+/**
+ * Контроллер для административных операций над пользователями.
+ * Предоставляет методы получения, удаления и поиска пользователей.
+ * Доступ к методам контроллера имеют только пользователи с ролью {@code ADMIN}.
+ */
 @RestController
 @Validated
 @RequestMapping("/api/v1/users")
@@ -32,6 +37,12 @@ public class UserController {
 
     private final UserApiService userApiService;
 
+    /**
+     * Возвращает информацию о пользователе по его идентификатору.
+     *
+     * @param userId ID пользователя. Должен быть положительным числом.
+     * @return {@link UserResponseDTO} данные пользователя
+     */
     @GetMapping("/{userId}")
     @Operation(
             summary = "Получение информации о пользователе",
@@ -56,6 +67,12 @@ public class UserController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    /**
+     * Удаляет пользователя по ID.
+     *
+     * @param userId ID пользователя. Должен быть положительным числом.
+     * @return сообщение об успешном удалении
+     */
     @DeleteMapping("/{userId}")
     @Operation(
             summary = "Удаление пользователя",
@@ -78,6 +95,16 @@ public class UserController {
         return ResponseEntity.ok(new MessageResponseDTO("Пользователь удален успешно"));
     }
 
+    /**
+     * Возвращает список пользователей с возможностью фильтрации и пагинации.
+     *
+     * @param page           номер страницы (0 по умолчанию)
+     * @param size           размер страницы (100 по умолчанию)
+     * @param login          фильтр по логину
+     * @param createdAtFrom  дата создания от
+     * @param createdAtTo    дата создания до
+     * @return {@link PagedResponseDTO} страница пользователей
+     */
     @GetMapping("/all")
     @Operation(
             summary = "Получение списка пользователей",

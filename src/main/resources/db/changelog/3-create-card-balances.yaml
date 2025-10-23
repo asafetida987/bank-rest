@@ -2,6 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: 3
       author: maria
+      preConditions:
+        - onFail: MARK_RAN
+        - onError: HALT
+        - not:
+            tableExists:
+              tableName: card_balances
       changes:
         - createTable:
             tableName: card_balances
